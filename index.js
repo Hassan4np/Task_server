@@ -31,129 +31,45 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
-        const database = client.db("froutsDB");
-        const ProductCollection = database.collection("products");
-        const CartCollectuon = database.collection('cards');
-        const OrdersCollectuon = database.collection('orders');
-        const UsersCollection = database.collection('users');
+        const database = client.db("TaskDB");
+        const TaskCollection = database.collection("task");
 
-        //start out Project-->
 
-        app.get('/products', async(req, res) => {
-            const couser = ProductCollection.find();
-            const result = await couser.toArray()
-            res.send(result)
-        });
-
-        app.get('/products/:id', async(req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await ProductCollection.findOne(query);
-            res.send(result)
-        });
-        app.get('/productscategory', async(req, res) => {
-
-            const category = req.query.category;
-            const price = req.query.price;
-
-            const queryObj = {};
-            if (category) {
-                queryObj.category = category;
-            }
-            const couser = ProductCollection.find(queryObj);
-            const result = await couser.toArray();
-
-            res.send(result)
-        });
-        app.get('/products/category/:brand', async(req, res) => {
-            const brand = req.params.brand;
-            us
-            const catehgory = {
-                category: brand
-            }
-            const result = await ProductCollection.find(catehgory).toArray();
-            res.send(result)
-        })
-        app.get('/cards', async(req, res) => {
+        // start out Project-- >
+        app.get('/task', async(req, res) => {
             const email = req.query.email;
             const query = { email: email }
-            const result = await CartCollectuon.find(query).toArray();
+            const result = await TaskCollectionCollectuon.find(query).toArray();
             res.send(result)
         })
-        app.post('/cards', async(req, res) => {
+        app.post('/addtask', async(req, res) => {
             const item = req.body;
-            const result = await CartCollectuon.insertOne(item);
+            const result = await TaskCollection.insertOne(item);
             res.send(result)
         });
-        app.delete('/cards/:id', async(req, res) => {
+        app.patch("/task/:id", async(req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await CartCollectuon.deleteOne(query);
-            res.send(result)
-        });
-        app.get('/orders', async(req, res) => {
-            const email = req.query.email;
-            const query = { email: email }
-            const result = await OrdersCollectuon.find(query).toArray();
-            res.send(result)
-        })
-        app.post('/orders', async(req, res) => {
-            const item = req.body;
+            const data = req.body;
 
-            const orders = await OrdersCollectuon.insertOne(item);
-            const query = {
-                _id: {
-                    $in: item.cardsid.map(id => new ObjectId(id))
+            const filter = { _id: new ObjectId(id) }
+
+            const updateitem = {
+                $set: {
+                    title: data.title,
+                    dec: data.dec,
+                    date: data.date,
+                    priority: data.priority,
                 }
-            }
-            const cardsclear = await CartCollectuon.deleteMany(query);
-
-            res.send({ orders, cardsclear })
-
+            };
+            const result = await AdvertisementCollation.updateOne(filter, updateitem);
+            return res.send(result)
         });
-        app.post('/users', async(req, res) => {
-            const user = req.body;
-            const result = await UsersCollection.insertOne(user);
+        app.delete('/task/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await TaskCollection.deleteOne(query);
             res.send(result)
-
         });
-
-        // app.post('/products', async(req, res) => {
-        //     const productitem = req.body;
-        //     const result = await ProductCollection.insertOne(productitem);
-        //     res.send(result);
-        // });
-        // app.put('/products/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const item = req.body;
-        //     const filter = { _id: new ObjectId(id) }
-        //     const options = { upsert: true };
-        //     const updateitem = {
-        //         $set: {
-        //             name: item.name,
-        //             Brand: item.Brand,
-        //             Price: item.Price,
-        //             photo: item.photo,
-        //             rating: item.rating,
-        //             description: item.description,
-        //             categoryitem: item.categoryitem,
-        //         }
-        //     };
-        //     const result = await ProductCollection.updateOne(filter, updateitem, options);
-        //     res.send(result)
-
-        // });
-        // app.get('/cards/:email', async(req, res) => {
-        //     const emailid = req.params.email;
-        //     const query = { email: emailid };
-        //     const course = ProductCollection.find(query);
-        //     const result = await course.toArray();
-        //     res.send(result)
-        // });
-
-
-
-
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
