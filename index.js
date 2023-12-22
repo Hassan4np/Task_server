@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 
 app.use(cors({
-    origin: ['https://task-management-94ca8.web.app', 'https://task-management-94ca8.firebaseapp.com'],
+    // origin: ['https://task-management-94ca8.web.app', 'https://task-management-94ca8.firebaseapp.com'],
     // origin: ['http://localhost:5173', 'http://localhost:5174'],
 
 }))
@@ -24,13 +24,16 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
-
+//SERVER: https://task-server-smoky.vercel.app
+//CLIEND: https://task-management-94ca8.web.app
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         const database = client.db("TaskDB");
         const TaskCollection = database.collection("task");
+        const OngoCollection = database.collection("ongo");
+        const ComplateCollection = database.collection("complate");
 
 
         // start out Project-- >
@@ -52,6 +55,60 @@ async function run() {
             const item = req.body;
             const result = await TaskCollection.insertOne(item);
             res.send(result)
+        });
+        app.get('/ongoing/:id', async(req, res) => {
+            const email = req.params.id;
+            const query = { email: email }
+            console.log(email)
+            const result = await OngoCollection.find(query).toArray();
+            res.send(result)
+        });
+        app.post('/task/ongoing', async(req, res) => {
+            const item = req.body;
+            const id = item.itemid
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await OngoCollection.insertOne(item)
+
+            const deleteitem = await TaskCollection.deleteOne(query)
+            res.send({ result, deleteitem })
+        });
+        app.get('/complate/on/:id', async(req, res) => {
+            const email = req.params.id;
+            const query = { email: email }
+            console.log(email)
+            const result = await ComplateCollection.find(query).toArray();
+            res.send(result)
+        });
+        app.post('/task/complate/on', async(req, res) => {
+            const item = req.body;
+            const id = item.itemid
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await ComplateCollection.insertOne(item)
+
+            const deleteitem = await OngoCollection.deleteOne(query)
+            res.send({ result, deleteitem })
+        });
+        app.post('/task/complate/on/pre', async(req, res) => {
+            const item = req.body;
+            const id = item.itemid
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await OngoCollection.insertOne(item)
+
+            const deleteitem = await ComplateCollection.deleteOne(query)
+            res.send({ result, deleteitem })
+        });
+        app.post('/task/complate/on/pre/main', async(req, res) => {
+            const item = req.body;
+            const id = item.itemid
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await TaskCollection.insertOne(item)
+
+            const deleteitem = await OngoCollection.deleteOne(query)
+            res.send({ result, deleteitem })
         });
         app.patch("/task/:id", async(req, res) => {
             const id = req.params.id;
