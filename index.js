@@ -1,18 +1,16 @@
-//backend page prthon ati dite hobe.
 const express = require('express');
-//clind side r backend link ar jonno
 const cors = require('cors');
-//mondgobd sathe link ar jonno import korte hobe
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-//bacnend data load hocche ki natai dekhbe.
 const app = express();
-//env dataload ar jono
 require("dotenv").config();
-//bacnend port
 const port = process.env.PORT || 5000;
 
-//middle were data bancend get koror jonno.
-app.use(cors());
+
+app.use(cors({
+    origin: ['https://task-management-94ca8.web.app', 'https://task-management-94ca8.firebaseapp.com'],
+    // origin: ['http://localhost:5173', 'http://localhost:5174'],
+
+}))
 app.use(express.json());
 
 
@@ -39,9 +37,17 @@ async function run() {
         app.get('/task', async(req, res) => {
             const email = req.query.email;
             const query = { email: email }
-            const result = await TaskCollectionCollectuon.find(query).toArray();
+            const result = await TaskCollection.find(query).toArray();
             res.send(result)
-        })
+        });
+        app.get('/task/:id', async(req, res) => {
+            const id = req.params.id
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const result = await TaskCollection.find(query).toArray();
+            res.send(result)
+        });
         app.post('/addtask', async(req, res) => {
             const item = req.body;
             const result = await TaskCollection.insertOne(item);
@@ -59,9 +65,10 @@ async function run() {
                     dec: data.dec,
                     date: data.date,
                     priority: data.priority,
+                    email: data.email
                 }
             };
-            const result = await AdvertisementCollation.updateOne(filter, updateitem);
+            const result = await TaskCollection.updateOne(filter, updateitem);
             return res.send(result)
         });
         app.delete('/task/:id', async(req, res) => {
@@ -80,12 +87,6 @@ async function run() {
     }
 }
 run().catch(console.dir);
-
-
-
-
-
-
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
