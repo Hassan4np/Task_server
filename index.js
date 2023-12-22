@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 
 app.use(cors({
-    // origin: ['https://task-management-94ca8.web.app', 'https://task-management-94ca8.firebaseapp.com'],
+    origin: ['https://task-management-94ca8.web.app', 'https://task-management-94ca8.firebaseapp.com'],
     // origin: ['http://localhost:5173', 'http://localhost:5174'],
 
 }))
@@ -132,6 +132,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await TaskCollection.deleteOne(query);
+            res.send(result)
+        });
+        app.delete('/complate/task/:id', async(req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const query = { _id: new ObjectId(id) };
+            const result = await ComplateCollection.deleteOne(query);
+            res.send(result)
+        });
+        app.delete('/ongoing/task/on/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await OngoCollection.deleteOne(query);
             res.send(result)
         });
 
