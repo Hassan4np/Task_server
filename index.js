@@ -34,6 +34,7 @@ async function run() {
         const TaskCollection = database.collection("task");
         const OngoCollection = database.collection("ongo");
         const ComplateCollection = database.collection("complate");
+        const ContactCollection = database.collection("contact");
 
 
         // start out Project-- >
@@ -147,10 +148,15 @@ async function run() {
             const result = await OngoCollection.deleteOne(query);
             res.send(result)
         });
+        app.post('/contact', async(req, res) => {
+            const info = req.body;
+            const result = await ContactCollection.insertOne(info)
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
